@@ -4,13 +4,9 @@ import android.content.Context;
 import android.os.CountDownTimer;
 import android.widget.Toast;
 
-import androidx.recyclerview.widget.RecyclerView;
-
-import static gunveer.codes.womensafety.MainActivity.listOfTimers;
-
 public  class TimerHandler extends CountDownTimer {
 
-    String timerLabel;
+    String timerLabeler;
     int position;
     Context context;
 
@@ -53,12 +49,12 @@ public  class TimerHandler extends CountDownTimer {
     }
 
 
-    public String getTimerLabel() {
-        return timerLabel;
+    public String getTimerLabeler() {
+        return timerLabeler;
     }
 
-    public void setTimerLabel(String timerLabel) {
-        this.timerLabel = timerLabel;
+    public void setTimerLabeler(String timerLabeler) {
+        this.timerLabeler = timerLabeler;
     }
 
     public void extras(int position, Context context) {
