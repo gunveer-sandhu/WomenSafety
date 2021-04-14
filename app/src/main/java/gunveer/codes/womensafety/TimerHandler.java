@@ -6,7 +6,7 @@ import android.widget.Toast;
 
 public  class TimerHandler extends CountDownTimer {
 
-    String timerLabeler;
+    String timerLabel;
     int position;
     Context context;
 
@@ -49,12 +49,12 @@ public  class TimerHandler extends CountDownTimer {
     }
 
 
-    public String getTimerLabeler() {
-        return timerLabeler;
+    public String getTimerLabel() {
+        return timerLabel;
     }
 
-    public void setTimerLabeler(String timerLabeler) {
-        this.timerLabeler = timerLabeler;
+    public void setTimerLabel(String timerLabel) {
+        this.timerLabel = timerLabel;
     }
 
     public void extras(int position, Context context) {
