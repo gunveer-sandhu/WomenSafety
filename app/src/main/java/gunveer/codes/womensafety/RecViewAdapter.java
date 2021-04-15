@@ -97,8 +97,8 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
 //                        Toast.makeText(context, "Timer is OFF", Toast.LENGTH_SHORT).show();
                         toggleOn.setText("OFF");
                         listOfTimers.get(getAdapterPosition()).toggleOn = false;
-
                     }
+                    TimerCreater.saving(listOfTimers, context);
                 }
             });
             btnDelete.setOnClickListener(new View.OnClickListener() {
