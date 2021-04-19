@@ -87,11 +87,15 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
             toggleOn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
                     if(toggleOn.isChecked()){
 //                        Toast.makeText(context, "Timer is ON", Toast.LENGTH_SHORT).show();
-                        toggleOn.setText("ON");
-                        listOfTimers.get(getAdapterPosition()).toggleOn = true;
-
+                        if(verifyOnlyOneOn(listOfTimers.get(getAdapterPosition()).label)){
+                            toggleOn.setText("ON");
+                            listOfTimers.get(getAdapterPosition()).toggleOn = true;
+                        }else{
+                            toggleOn.setChecked(false);
+                        }
                     }
                     else{
 //                        Toast.makeText(context, "Timer is OFF", Toast.LENGTH_SHORT).show();
@@ -124,6 +128,15 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
                     Toast.makeText(context, listOfTimers.get(getAdapterPosition()).getLastClickedPhoto().toString(), Toast.LENGTH_LONG).show();
                 }
             });
+        }
+        private boolean verifyOnlyOneOn(String label) {
+            for(int i =0; i<listOfTimers.size(); i++){
+                if(listOfTimers.get(i).toggleOn && listOfTimers.get(i).label != label){
+                    Toast.makeText(context, "Only One timer can be ON at one time.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
