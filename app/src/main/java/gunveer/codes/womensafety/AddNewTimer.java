@@ -248,11 +248,14 @@ public class AddNewTimer extends AppCompatActivity {
 
 
     public void missedTimerHandler() {
-        if(missedTimer.getText().toString().isEmpty()){
+        if(missedTimer.getText().toString().isEmpty() || missedTimer.getText().toString() == "0"){
             missedTimerInt = 1;
             Toast.makeText(this, "You did'nt set missed timer. Setting it to 1 (one).", Toast.LENGTH_LONG).show();
         }else{
             missedTimerInt = Integer.parseInt(missedTimer.getText().toString());
+            if(missedTimerInt==0){
+                missedTimerInt = 1;
+            }
         }
     }
 

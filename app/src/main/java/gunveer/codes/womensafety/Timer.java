@@ -14,7 +14,7 @@ public class Timer {
     String message, label;
     List<Contact> contactsToAlert;
     Location lastLocation;
-    TimerHandler timerHandler;
+
 
     public Timer(int hour, String label, int minutes, int missedTimer, boolean toggleOn, List<String> lastClickedPhoto, String message, List<Contact> contactsToAlert,
                  Location lastLocation, boolean excludeLocation) {
@@ -30,13 +30,6 @@ public class Timer {
         this.excludeLocation = excludeLocation;
     }
 
-    public TimerHandler getTimerHandler() {
-        return timerHandler;
-    }
-
-    public void setTimerHandler(TimerHandler timerHandler) {
-        this.timerHandler = timerHandler;
-    }
 
     public Timer() {
 

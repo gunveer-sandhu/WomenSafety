@@ -300,6 +300,9 @@ public class EditTimer extends AppCompatActivity {
             Toast.makeText(this, "You did'nt set missed timer. Setting it to 1 (one).", Toast.LENGTH_LONG).show();
         }else{
             missedTimerIntEdit = Integer.parseInt(missedTimerEdit.getText().toString());
+            if(missedTimerIntEdit==0){
+                missedTimerIntEdit = 1;
+            }
         }
     }
 
