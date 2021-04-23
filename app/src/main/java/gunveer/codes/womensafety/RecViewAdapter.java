@@ -1,6 +1,7 @@
 package gunveer.codes.womensafety;
 
 import android.app.ActivityManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -163,6 +164,10 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
 
         public void timerReset(int position) {
             //code for timer reset
+            Intent resetIntent = new Intent(context, ResetBroadcast.class);
+            resetIntent.putExtra("position", position);
+            resetIntent.putExtra("reset", true);
+            context.sendBroadcast(resetIntent);
         }
 
         public void timerOn(int position) {
@@ -180,6 +185,13 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
                         int minutes = intent.getIntExtra("minutes", -1);
                         int seconds = intent.getIntExtra("seconds", -1);
                         int missedTimerInt = intent.getIntExtra("missedTimer", -1);
+                        boolean toggleOnVal = intent.getBooleanExtra("toggleOn", true);
+                        toggleOn.setChecked(toggleOnVal);
+                        if(toggleOn.isChecked()){
+                            toggleOn.setText("ON");
+                        }else{
+                            toggleOn.setText("OFF");
+                        }
                         tvMinutes.setText(String.valueOf(minutes));
                         tvSeconds.setText(String.valueOf(seconds));
                         tvMissedTimers.setText(String.valueOf(missedTimerInt));
@@ -196,6 +208,13 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
                         int minutes = intent.getIntExtra("minutes", -1);
                         int seconds = intent.getIntExtra("seconds", -1);
                         int missedTimerInt = intent.getIntExtra("missedTimer", -1);
+                        boolean toggleOnVal = intent.getBooleanExtra("toggleOn", true);
+                        toggleOn.setChecked(toggleOnVal);
+                        if(toggleOn.isChecked()){
+                            toggleOn.setText("ON");
+                        }else{
+                            toggleOn.setText("OFF");
+                        }
                         tvMinutes.setText(String.valueOf(minutes));
                         tvSeconds.setText(String.valueOf(seconds));
                         tvMissedTimers.setText(String.valueOf(missedTimerInt));
@@ -214,13 +233,11 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
 
         public void timerOff(int position) {
             //code for timer off
+            Intent stopIntent = new Intent(context, ResetBroadcast.class);
+            stopIntent.putExtra("position", position);
+            stopIntent.putExtra("stop", true);
+            context.sendBroadcast(stopIntent);
             context.unregisterReceiver(broadcastReceiver);
-
-
-            Intent stopThread = new Intent();
-            stopThread.setAction("stopThread");
-            stopThread.putExtra("stopThread", true);
-            context.sendBroadcast(stopThread);
             //this service intent is not being used as internal stop self method is being called
 //            Intent serviceIntent = new Intent(context, TimerService.class);
 //            context.stopService(serviceIntent);
@@ -228,7 +245,7 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
 
         }
 
-        private void resettingToDefaults(int position) {
+        public void resettingToDefaults(int position) {
             mainHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {

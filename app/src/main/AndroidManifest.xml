@@ -35,7 +35,7 @@
         </activity>
 
         <service android:name=".TimerService"/>
-
+        <receiver android:name=".ResetBroadcast"/>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="gunveer.codes.android.womensafety"

@@ -19,7 +19,7 @@ public class App extends Application {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
                     "Timer notification Channel",
-                    NotificationManager.IMPORTANCE_LOW
+                    NotificationManager.IMPORTANCE_HIGH
             );
 
             NotificationManager manager = getSystemService(NotificationManager.class);
