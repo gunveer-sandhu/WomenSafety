@@ -1,7 +1,11 @@
 package gunveer.codes.womensafety;
 
+import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -15,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -25,8 +30,9 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
     Context context;
     List<Timer> listOfTimers;
     public Thread thread;
-    public volatile boolean stopThread = false;
+
     public static Handler mainHandler = new android.os.Handler(Looper.getMainLooper());
+
 
     public RecViewAdapter(Context context, List<Timer> listOfTimers) {
         this.context = context;
@@ -54,7 +60,6 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
 
         if(holder.toggleOn.isChecked()){
             holder.toggleOn.setText("ON");
-
             holder.timerOn(position);
         }else{
             holder.toggleOn.setText("OFF");
@@ -77,6 +82,8 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
         Switch toggleOn;
         Button btnEdit, btnDelete, btnReset;
         ConstraintLayout parentLayout;
+        Intent serviceIntent = new Intent(context, TimerService.class);
+        BroadcastReceiver broadcastReceiver = null;
 
 
         public MyViewHolder(@NonNull View itemView) {
@@ -92,6 +99,7 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
             btnDelete = itemView.findViewById(R.id.btnDelete);
             btnReset = itemView.findViewById(R.id.btnReset);
             parentLayout = itemView.findViewById(R.id.parentLayout);
+
 
 
 
@@ -154,109 +162,81 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
         }
 
         public void timerReset(int position) {
-            if(!stopThread){
-                stopThread = true;
-                SystemClock.sleep(1000);
-                timerOn(position);
-                Toast.makeText(context, "Timer Reset: "+listOfTimers.get(position).label, Toast.LENGTH_SHORT).show();
-            }else{
-                tvLabel.setText(listOfTimers.get(position).getLabel());
-                toggleOn.setChecked(false);
-                toggleOn.setText("OFF");
-                tvMinutes.setText(String.valueOf(listOfTimers.get(position).getMinutes()));
-                tvSeconds.setText("00");
-                tvMissedTimers.setText(String.valueOf(listOfTimers.get(position).getMissedTimer()));
-            }
+            //code for timer reset
         }
 
         public void timerOn(int position) {
-            stopThread = false;
-            thread = new Thread(){
-                @Override
-                public void run() {
-                    int minutes = listOfTimers.get(position).getMinutes();
-                    int seconds = 0;
-                    int missedTimerInt = listOfTimers.get(position).getMissedTimer();
-                    int totalTime =  minutes*60000 + seconds*1000;
-                    int totalTimeRes = totalTime;
-                    if(stopThread){
-                        Toast.makeText(context, "Hitting the if", Toast.LENGTH_SHORT).show();
-                        return;
-                    }else{
-                        while(totalTime !=0){
-                            if(stopThread){
-                                mainHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        tvMinutes.setText(String.valueOf(listOfTimers.get(position).getMinutes()));
-                                        tvSeconds.setText("00");
-                                        tvMissedTimers.setText(String.valueOf(listOfTimers.get(position).getMissedTimer()));
-                                    }
-                                });
-                                return;
-                            }
-                            SystemClock.sleep(1000);
-                            totalTime = totalTime - 1000;
-                            minutes = totalTime/60000;
-                            seconds = (totalTime%60000)/1000;
-                            if(totalTime==0){
-                                missedTimerInt = missedTimerInt - 1;
-                                if(missedTimerInt==0){
-                                    //write code of if timer expires
-                                    timerExpires(position);
-                                }else{
-                                    totalTime = totalTimeRes;
-                                }
-                            }
-                            int finalMinutes = minutes;
-                            int finalSeconds = seconds;
-                            int finalMissedTimerInt = missedTimerInt;
-                            mainHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    tvMinutes.setText(String.valueOf(finalMinutes));
-                                    tvSeconds.setText(String.valueOf(finalSeconds));
-                                    tvMissedTimers.setText(String.valueOf(finalMissedTimerInt));
-                                }
-                            });
 
-                        }
+            if(!isServiceRunningInForeground(context, TimerService.class)){
+
+                serviceIntent.putExtra("position", position);
+                context.startService(serviceIntent);
+                IntentFilter intentFilter = new IntentFilter();
+                intentFilter.addAction("updater");
+
+                broadcastReceiver = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        int minutes = intent.getIntExtra("minutes", -1);
+                        int seconds = intent.getIntExtra("seconds", -1);
+                        int missedTimerInt = intent.getIntExtra("missedTimer", -1);
+                        tvMinutes.setText(String.valueOf(minutes));
+                        tvSeconds.setText(String.valueOf(seconds));
+                        tvMissedTimers.setText(String.valueOf(missedTimerInt));
                     }
-                }
-            };
-            thread.start();
+                };
+                context.registerReceiver(broadcastReceiver, intentFilter);
+            }else{
+                IntentFilter intentFilter = new IntentFilter();
+                intentFilter.addAction("updater");
 
+                broadcastReceiver = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        int minutes = intent.getIntExtra("minutes", -1);
+                        int seconds = intent.getIntExtra("seconds", -1);
+                        int missedTimerInt = intent.getIntExtra("missedTimer", -1);
+                        tvMinutes.setText(String.valueOf(minutes));
+                        tvSeconds.setText(String.valueOf(seconds));
+                        tvMissedTimers.setText(String.valueOf(missedTimerInt));
+                    }
+                };
+                context.registerReceiver(broadcastReceiver, intentFilter);
+            }
 
+//            stopThread = false;
 //            Toast.makeText(context, "Timer is on"+listOfTimers.get(position).label, Toast.LENGTH_SHORT).show();
         }
 
         private void timerExpires(int position) {
-            if(!stopThread){
-                stopThread = true;
-                mainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(context, "Sending Alert.", Toast.LENGTH_LONG).show();
-                        SystemClock.sleep(1000);
-                        tvLabel.setText("ALERT SENT");
-                        toggleOn.setChecked(false);
-                        toggleOn.setText("OFF");
-                        tvMinutes.setText(String.valueOf(listOfTimers.get(position).getMinutes()));
-                        tvSeconds.setText("00");
-                        tvMissedTimers.setText(String.valueOf(listOfTimers.get(position).getMissedTimer()));
-                    }
-                });
-
-            }
+            //code for timer Expiry
         }
 
         public void timerOff(int position) {
-            if(!stopThread){
-                stopThread = true;
-//                thread.interrupt();
-//                Toast.makeText(context, "Timer is off: "+listOfTimers.get(position).label, Toast.LENGTH_SHORT).show();
+            //code for timer off
+            context.unregisterReceiver(broadcastReceiver);
 
-            }
+
+            Intent stopThread = new Intent();
+            stopThread.setAction("stopThread");
+            stopThread.putExtra("stopThread", true);
+            context.sendBroadcast(stopThread);
+            //this service intent is not being used as internal stop self method is being called
+//            Intent serviceIntent = new Intent(context, TimerService.class);
+//            context.stopService(serviceIntent);
+            resettingToDefaults(position);
+
+        }
+
+        private void resettingToDefaults(int position) {
+            mainHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    tvMinutes.setText(String.valueOf(listOfTimers.get(position).getMinutes()));
+                    tvSeconds.setText(String.valueOf(((listOfTimers.get(position).getMinutes())%60000)/1000));
+                    tvMissedTimers.setText(String.valueOf(listOfTimers.get(position).getMissedTimer()));
+                }
+            }, 1000);
         }
 
         private boolean verifyOnlyOneOn(String label) {
@@ -276,5 +256,18 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
             }
             return true;
         }
+        public boolean isServiceRunningInForeground(Context context, Class<?> serviceClass) {
+            ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (serviceClass.getName().equals(service.service.getClassName())) {
+                    if (service.foreground) {
+                        return true;
+                    }
+
+                }
+            }
+            return false;
+        }
     }
+
 }

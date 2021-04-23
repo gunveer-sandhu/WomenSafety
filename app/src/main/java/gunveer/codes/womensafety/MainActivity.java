@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
             listOfTimers = new ArrayList<>();
         }
 
+
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         adapter = new RecViewAdapter(MainActivity.this, listOfTimers);
