@@ -243,6 +243,7 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
 //            context.stopService(serviceIntent);
             resettingToDefaults(position);
 
+
         }
 
         public void resettingToDefaults(int position) {

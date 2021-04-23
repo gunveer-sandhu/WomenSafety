@@ -105,6 +105,9 @@ public class TimerService extends Service {
                                 intent1.putExtra("toggleOn", false);
                                 sendBroadcast(intent1);
                                 Log.d(TAG, "in stop thread here");
+
+                                listOfTimers.get(position).setToggleOn(false);
+                                TimerCreater.saving(listOfTimers, TimerService.this);
                                 stopSelf();
                                 return;
                             }
