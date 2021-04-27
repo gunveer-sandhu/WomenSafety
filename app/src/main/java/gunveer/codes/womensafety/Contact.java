@@ -1,11 +1,11 @@
 package gunveer.codes.womensafety;
 
 public class Contact {
-    int contactNumber;
+    Long contactNumber;
     String contactEmail;
     String contactNickname;
 
-    public Contact(String contactNickname, int contactNumber, String contactEmail) {
+    public Contact(String contactNickname, Long contactNumber, String contactEmail) {
 
         this.contactNickname = contactNickname;
         this.contactNumber = contactNumber;
@@ -13,11 +13,11 @@ public class Contact {
 
     }
 
-    public int getContactNumber() {
+    public Long getContactNumber() {
         return contactNumber;
     }
 
-    public void setContactNumber(int contactNumber) {
+    public void setContactNumber(Long contactNumber) {
         this.contactNumber = contactNumber;
     }
 

@@ -48,7 +48,7 @@ public class EditTimer extends AppCompatActivity {
     private List<Uri> imageUri = new ArrayList<>();;
     private List<String> imageUriString = new ArrayList<>();;
     private List<Contact> contactListEdit = new ArrayList<>();;
-    private int contactNum;
+    private Long contactNum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -455,7 +455,7 @@ public class EditTimer extends AppCompatActivity {
 
         if (phone.length() == 10) {
             try{
-                contactNum = Integer.parseInt(etContactNumberEdit.getText().toString());
+                contactNum = Long.parseLong(etContactNumberEdit.getText().toString());
             }catch (Exception e){
                 Toast.makeText(this, "Some error occurred during number entry", Toast.LENGTH_SHORT).show();
             }

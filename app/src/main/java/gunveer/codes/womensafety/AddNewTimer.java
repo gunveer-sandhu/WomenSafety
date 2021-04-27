@@ -46,7 +46,7 @@ public class AddNewTimer extends AppCompatActivity {
     private List<Uri> imageUri;
     private List<String> imageUriString;
     private List<Contact> contactList;
-    private int contactNum;
+    private Long contactNum;
 
 
 
@@ -371,12 +371,14 @@ public class AddNewTimer extends AppCompatActivity {
 
     private void addContact() {
         if(validateEmail()==true && validateNickname()==true && validateNumber()==true){
-            Toast.makeText(this, "Contact Added.", Toast.LENGTH_LONG).show();
-            try{
-                contactNum = Integer.parseInt(etContactNumber.getText().toString());
-            }catch (Exception e){
-                Toast.makeText(this, " ", Toast.LENGTH_SHORT).show();
-            }
+//            Toast.makeText(this, "Contact Added.", Toast.LENGTH_LONG).show();
+            contactNum = Long.parseLong(String.valueOf(etContactNumber.getText()));
+            Toast.makeText(this, String.valueOf(contactNum), Toast.LENGTH_SHORT).show();
+//            try{
+//
+//            }catch (Exception e){
+//                Toast.makeText(this, " ", Toast.LENGTH_SHORT).show();
+//            }
             
             Contact contact = new Contact(etContactNickname.getText().toString(),
                     contactNum, etContactEmail.getText().toString());

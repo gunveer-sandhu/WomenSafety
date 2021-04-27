@@ -11,29 +11,23 @@
         android:id="@+id/divider2"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="16dp"
         android:background="?android:attr/listDivider"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnEdit" />
+        app:layout_constraintTop_toBottomOf="@+id/btnDelete"
+        tools:layout_editor_absoluteX="0dp" />
 
     <Switch
         android:id="@+id/toggleOn"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
         android:ellipsize="middle"
         android:enabled="true"
         android:scrollbarSize="8dp"
         android:text="ON"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView8" />
@@ -55,7 +49,7 @@
 
     <TextView
         android:id="@+id/textView6"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
@@ -72,17 +66,14 @@
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="#FEFFFF"
         android:text="Edit"
         android:textAllCaps="true"
         android:textColor="#9C27B0"
         app:iconTint="#C31515"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/btnDelete"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnDelete"
-        app:layout_constraintTop_toTopOf="@+id/guideline3"
+        app:layout_constraintTop_toTopOf="@+id/btnDelete"
         app:rippleColor="#F8F5F5"
         app:strokeColor="#9C27B0" />
 
@@ -92,13 +83,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_begin="141dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="187dp" />
 
     <TextView
         android:id="@+id/textView11"
@@ -133,17 +117,15 @@
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="32dp"
         android:text="Delete"
         android:textColor="#CF2020"
         android:textColorHighlight="#CF2020"
         android:textColorHint="#CF2020"
         android:textColorLink="#CF2020"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnEdit"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline3"
+        app:layout_constraintTop_toBottomOf="@+id/textView13"
         app:rippleColor="#D13636"
         app:strokeColor="#CF2020" />
 
@@ -168,10 +150,11 @@
 
     <TextView
         android:id="@+id/textView13"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="Will send alert after "
+        android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="@+id/toggleOn"
         app:layout_constraintEnd_toStartOf="@+id/tvMissedTimers"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
@@ -179,8 +162,8 @@
 
     <TextView
         android:id="@+id/textView16"
-        android:layout_width="wrap_content"
-        android:layout_height="19dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:text=" missed Timers."
         app:layout_constraintBottom_toBottomOf="@+id/tvMissedTimers"
@@ -192,9 +175,10 @@
         android:id="@+id/tvMissedTimers"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="1dp"
-        android:layout_marginEnd="1dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:text="0"
+        android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="@+id/textView13"
         app:layout_constraintEnd_toStartOf="@id/textView16"
         app:layout_constraintStart_toEndOf="@+id/textView13"
