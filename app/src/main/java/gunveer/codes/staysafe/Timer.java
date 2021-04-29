@@ -1,9 +1,6 @@
-package gunveer.codes.womensafety;
+package gunveer.codes.staysafe;
 
 import android.location.Location;
-import android.media.Image;
-import android.net.Uri;
-import android.provider.ContactsContract;
 
 import java.util.List;
 

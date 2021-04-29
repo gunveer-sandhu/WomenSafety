@@ -1,4 +1,4 @@
-package gunveer.codes.womensafety;
+package gunveer.codes.staysafe;
 
 import org.junit.Test;
 

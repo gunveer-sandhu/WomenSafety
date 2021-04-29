@@ -1,4 +1,4 @@
-package gunveer.codes.womensafety;
+package gunveer.codes.staysafe;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,82 +24,123 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import static gunveer.codes.staysafe.MainActivity.listOfTimers;
+import static gunveer.codes.staysafe.TimerCreater.saving;
 
-public class AddNewTimer extends AppCompatActivity {
+public class EditTimer extends AppCompatActivity {
 
     private static final String TAG = "whatever.......";
-    private EditText etMinutes, etLabel;
-    private Button btnOk;
-    private EditText etMessage;
-    private Button btnAddFromGallery, btnAddFromCamera;
-    private EditText etContactNickname, etContactEmail, etContactNumber;
-    private TextView tvContact, tvContact2, tvContact3;
-    private Button btnAddContact;
-    private EditText missedTimer;
-    private CheckBox excludeLocation;
-    private ImageView imageView, imageView2, imageView3;
+    private static final int FILLING_IMAGE_VIEW_EDIT = 3;
+    private EditText etMinutesEdit, etLabelEdit;
+    private Button btnOkEdit;
+    private EditText etMessageEdit;
+    private Button btnAddFromGalleryEdit, btnAddFromCameraEdit;
+    private EditText etContactNicknameEdit, etContactEmailEdit, etContactNumberEdit;
+    private TextView tvContactEdit, tvContact2Edit, tvContact3Edit;
+    private Button btnAddContactEdit;
+    private EditText missedTimerEdit;
+    private CheckBox excludeLocationEdit;
+    private ImageView imageViewEdit, imageView2Edit, imageView3Edit;
     public static final int PICK_IMAGE_MULTIPLE_GALLERY = 1;
     public static final int REQUEST_IMAGE_CAPTURE = 2;
-    public int missedTimerInt;
+    public int missedTimerIntEdit;
 
 
-    private List<Uri> imageUri;
-    private List<String> imageUriString;
-    private List<Contact> contactList;
+    private List<Uri> imageUri = new ArrayList<>();;
+    private List<String> imageUriString = new ArrayList<>();;
+    private List<Contact> contactListEdit = new ArrayList<>();;
     private Long contactNum;
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_new_timer);
+        setContentView(R.layout.activity_edit_timer);
+
+        etLabelEdit = findViewById(R.id.etLabelEdit);
+        etMinutesEdit = findViewById(R.id.etMinutesEdit);
+        etMessageEdit = findViewById(R.id.etMessageEdit);
+        btnAddFromGalleryEdit = findViewById(R.id.btnAddFromGalleryEdit);
+        btnAddFromCameraEdit = findViewById(R.id.btnAddFromCameraEdit);
+        imageViewEdit = findViewById(R.id.imageViewEdit);
+        imageView2Edit = findViewById(R.id.imageView2Edit);
+        imageView3Edit = findViewById(R.id.imageView3Edit);
+        etContactNicknameEdit = findViewById(R.id.etContactNicknameEdit);
+        etContactEmailEdit = findViewById(R.id.etContactEmailEdit);
+        etContactNumberEdit = findViewById(R.id.etContactNumberEdit);
+        tvContactEdit = findViewById(R.id.tvContactEdit);
+        tvContact2Edit = findViewById(R.id.tvContact2Edit);
+        tvContact3Edit = findViewById(R.id.tvContact3Edit);
+        btnAddContactEdit = findViewById(R.id.btnAddContactEdit);
+        missedTimerEdit = findViewById(R.id.missedTimerEdit);
+        excludeLocationEdit = findViewById(R.id.excludeLocationEdit);
+        btnOkEdit = findViewById(R.id.btnOkEdit);
 
 
-        etLabel = findViewById(R.id.etLabelEdit);
-        etMinutes = findViewById(R.id.etMinutesEdit);
-        btnOk = findViewById(R.id.btnOkEdit);
-        etMessage = findViewById(R.id.etMessageEdit);
-        btnAddFromGallery = findViewById(R.id.btnAddFromGalleryEdit);
-        btnAddFromCamera = findViewById(R.id.btnAddFromCameraEdit);
-        imageView = findViewById(R.id.imageViewEdit);
-        imageView2 = findViewById(R.id.imageView2Edit);
-        imageView3 = findViewById(R.id.imageView3Edit);
+        Intent intent = getIntent();
+        int position = intent.getIntExtra("timerNum", -1);
+//        if(position == -1){
+//            Toast.makeText(this, "Timer num cannot be retrieved", Toast.LENGTH_LONG).show();
+//        }else{
+//            Toast.makeText(this, "position is "+position, Toast.LENGTH_SHORT).show();
+//        }
 
-        imageUri = new ArrayList<>();
-        contactList = new ArrayList<>();
-
-
-        etContactNickname = findViewById(R.id.etContactNicknameEdit);
-        etContactNumber = findViewById(R.id.etContactNumberEdit);
-        etContactEmail = findViewById(R.id.etContactEmailEdit);
-        tvContact = findViewById(R.id.tvContactEdit);
-        tvContact2 = findViewById(R.id.tvContact2Edit);
-        tvContact3 = findViewById(R.id.tvContact3Edit);
-        btnAddContact = findViewById(R.id.btnAddContactEdit);
-
-        missedTimer = findViewById(R.id.missedTimerEdit);
-        excludeLocation = findViewById(R.id.excludeLocationEdit);
+        imageUriString =  listOfTimers.get(position).getLastClickedPhoto();
+        for(int i = 0; i<imageUriString.size(); i++){
+            imageUri.add(i,Uri.parse(imageUriString.get(i)));
+        }
 
 
+        etLabelEdit.setText(listOfTimers.get(position).getLabel());
+        etMinutesEdit.setText(String.valueOf(listOfTimers.get(position).getMinutes()));
+        etMessageEdit.setText(listOfTimers.get(position).getMessage());
+
+        if(imageUri.size()==3){
+            imageViewEdit.setImageURI(imageUri.get(0));
+            imageView2Edit.setImageURI(imageUri.get(1));
+            imageView3Edit.setImageURI(imageUri.get(2));
+        }else if(imageUri.size()==2){
+            imageViewEdit.setImageURI(imageUri.get(0));
+            imageView2Edit.setImageURI(imageUri.get(1));
+        }else{
+            imageViewEdit.setImageURI(imageUri.get(0));
+        }
+//        fillingImageViewEdit();
 
 
-        btnAddFromGallery.setOnClickListener(new View.OnClickListener() {
+
+        contactListEdit = listOfTimers.get(position).contactsToAlert;
+
+        if(contactListEdit.size()==3){
+            tvContactEdit.setText(contactListEdit.get(0).contactNickname);
+            tvContact2Edit.setText(contactListEdit.get(1).contactNickname);
+            tvContact3Edit.setText(contactListEdit.get(2).contactNickname);
+        }else if(contactListEdit.size()==2){
+            tvContactEdit.setText(contactListEdit.get(0).contactNickname);
+            tvContact2Edit.setText(contactListEdit.get(1).contactNickname);
+        }else{
+            tvContactEdit.setText(contactListEdit.get(0).contactNickname);
+        }
+
+        missedTimerEdit.setText(String.valueOf(listOfTimers.get(position).getMissedTimer()));
+        excludeLocationEdit.setChecked(listOfTimers.get(position).excludeLocation);
+
+        // code from addNewTimer to be edited..
+
+        btnAddFromGalleryEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pickImageIntent();
             }
         });
 
-        btnAddFromCamera.setOnClickListener(new View.OnClickListener() {
+        btnAddFromCameraEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 capturePhoto();
             }
         });
 
-        imageView.setOnClickListener(new View.OnClickListener() {
+        imageViewEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
@@ -111,7 +152,7 @@ public class AddNewTimer extends AppCompatActivity {
             }
         });
 
-        imageView2.setOnClickListener(new View.OnClickListener() {
+        imageView2Edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
@@ -123,7 +164,7 @@ public class AddNewTimer extends AppCompatActivity {
             }
         });
 
-        imageView3.setOnClickListener(new View.OnClickListener() {
+        imageView3Edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
@@ -135,18 +176,18 @@ public class AddNewTimer extends AppCompatActivity {
             }
         });
 
-        btnAddContact.setOnClickListener(new View.OnClickListener() {
+        btnAddContactEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addContact();
             }
         });
 
-        tvContact.setOnClickListener(new View.OnClickListener() {
+        tvContactEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    contactList.remove(0);
+                    contactListEdit.remove(0);
                     onContactDeleteHandler();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -154,11 +195,11 @@ public class AddNewTimer extends AppCompatActivity {
             }
         });
 
-        tvContact2.setOnClickListener(new View.OnClickListener() {
+        tvContact2Edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    contactList.remove(1);
+                    contactListEdit.remove(1);
                     onContactDeleteHandler();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -166,11 +207,11 @@ public class AddNewTimer extends AppCompatActivity {
             }
         });
 
-        tvContact3.setOnClickListener(new View.OnClickListener() {
+        tvContact3Edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    contactList.remove(2);
+                    contactListEdit.remove(2);
                     onContactDeleteHandler();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -180,59 +221,74 @@ public class AddNewTimer extends AppCompatActivity {
 
 
 
-        btnOk.setOnClickListener(new View.OnClickListener() {
+        btnOkEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 verifyOkBtn();
                 if(verifyOkBtn()){
                     imageUriString = imageUriToString(imageUri);
-                    TimerCreater timerCreater = new TimerCreater(etLabel.getText().toString(), Integer.valueOf(String.valueOf(etMinutes.getText())), String.valueOf(etMessage.getText()), imageUriString, contactList,
-                            missedTimerInt, excludeLocation.isChecked(), getApplicationContext());
 
-                    Intent intent = new Intent(AddNewTimer.this, MainActivity.class);
+//                    TimerCreater timerCreater = new TimerCreater(etLabel.getText().toString(), Integer.valueOf(String.valueOf(etMinutes.getText())), String.valueOf(etMessage.getText()), imageUriString, contactList,
+//                            missedTimerInt, excludeLocation.isChecked(), getApplicationContext());
+
+                    Timer timer = new Timer(0, etLabelEdit.getText().toString(), Integer.valueOf(etMinutesEdit.getText().toString()), missedTimerIntEdit, listOfTimers.get(position).isToggleOn(),
+                             imageUriString, etMessageEdit.getText().toString(), contactListEdit, null, excludeLocationEdit.isChecked());
+
+                    listOfTimers.set(position, timer);
+                    saving(listOfTimers, EditTimer.this);
+
+                    Intent intent = new Intent(EditTimer.this, MainActivity.class);
                     startActivity(intent);
                 }
             }
         });
+
     }
+
+//    private void fillingImageViewEdit() {
+//        Intent intent = new Intent();
+//        intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+//        intent.setType("*/*");
+//        startActivityForResult(intent, FILLING_IMAGE_VIEW_EDIT);
+//    }
 
     private void onImageDeleteHandler() {
         if(imageUri.size()==3){
-            imageView.setImageURI(imageUri.get(0));
-            imageView2.setImageURI(imageUri.get(1));
-            imageView3.setImageURI(imageUri.get(2));
+            imageViewEdit.setImageURI(imageUri.get(0));
+            imageView2Edit.setImageURI(imageUri.get(1));
+            imageView3Edit.setImageURI(imageUri.get(2));
         }else if(imageUri.size()==2){
-            imageView.setImageURI(imageUri.get(0));
-            imageView2.setImageURI(imageUri.get(1));
-            imageView3.setImageURI(null);
+            imageViewEdit.setImageURI(imageUri.get(0));
+            imageView2Edit.setImageURI(imageUri.get(1));
+            imageView3Edit.setImageURI(null);
         }else if(imageUri.size()==1){
-            imageView.setImageURI(imageUri.get(0));
-            imageView2.setImageURI(null);
-            imageView3.setImageURI(null);
+            imageViewEdit.setImageURI(imageUri.get(0));
+            imageView2Edit.setImageURI(null);
+            imageView3Edit.setImageURI(null);
         }else{
-            imageView.setImageURI(null);
-            imageView2.setImageURI(null);
-            imageView3.setImageURI(null);
+            imageViewEdit.setImageURI(null);
+            imageView2Edit.setImageURI(null);
+            imageView3Edit.setImageURI(null);
         }
     }
 
     private void onContactDeleteHandler() {
-        if(contactList.size()==3){
-            tvContact.setText(contactList.get(0).contactNickname);
-            tvContact2.setText(contactList.get(1).contactNickname);
-            tvContact3.setText(contactList.get(2).contactNickname);
-        }else if(contactList.size()==2){
-            tvContact.setText(contactList.get(0).contactNickname);
-            tvContact2.setText(contactList.get(1).contactNickname);
-            tvContact3.setText("");
-        }else if(contactList.size()==1){
-            tvContact.setText(contactList.get(0).contactNickname);
-            tvContact2.setText("");
-            tvContact3.setText("");
+        if(contactListEdit.size()==3){
+            tvContactEdit.setText(contactListEdit.get(0).contactNickname);
+            tvContact2Edit.setText(contactListEdit.get(1).contactNickname);
+            tvContact3Edit.setText(contactListEdit.get(2).contactNickname);
+        }else if(contactListEdit.size()==2){
+            tvContactEdit.setText(contactListEdit.get(0).contactNickname);
+            tvContact2Edit.setText(contactListEdit.get(1).contactNickname);
+            tvContact3Edit.setText("");
+        }else if(contactListEdit.size()==1){
+            tvContactEdit.setText(contactListEdit.get(0).contactNickname);
+            tvContact2Edit.setText("");
+            tvContact3Edit.setText("");
         }else{
-            tvContact.setText("");
-            tvContact2.setText("");
-            tvContact3.setText("");
+            tvContactEdit.setText("");
+            tvContact2Edit.setText("");
+            tvContact3Edit.setText("");
         }
     }
 
@@ -240,7 +296,7 @@ public class AddNewTimer extends AppCompatActivity {
     private List<String> imageUriToString(List<Uri> imageUri) {
         List<String> test = new ArrayList<>();
         for(int i=0; i<imageUri.size(); i++){
-            String trya = imageUri.get(i).toString();
+            String trya = String.valueOf(imageUri.get(i));
             test.add(i, trya);
         }
         return test;
@@ -248,19 +304,19 @@ public class AddNewTimer extends AppCompatActivity {
 
 
     public void missedTimerHandler() {
-        if(missedTimer.getText().toString().isEmpty() || missedTimer.getText().toString() == "0"){
-            missedTimerInt = 1;
+        if(missedTimerEdit.getText().toString().isEmpty()){
+            missedTimerIntEdit = 1;
             Toast.makeText(this, "You did'nt set missed timer. Setting it to 1 (one).", Toast.LENGTH_LONG).show();
         }else{
-            missedTimerInt = Integer.parseInt(missedTimer.getText().toString());
-            if(missedTimerInt==0){
-                missedTimerInt = 1;
+            missedTimerIntEdit = Integer.parseInt(missedTimerEdit.getText().toString());
+            if(missedTimerIntEdit==0){
+                missedTimerIntEdit = 1;
             }
         }
     }
 
 
-        private boolean verifyOkBtn() {
+    private boolean verifyOkBtn() {
         missedTimerHandler();
         validateMinutes();
         if(validateMinutes()){
@@ -283,39 +339,38 @@ public class AddNewTimer extends AppCompatActivity {
     }
 
     private void validateLabel() {
-        if(etLabel.getText().toString().isEmpty()){
-            etLabel.setText("Default label");
+        if(etLabelEdit.getText().toString().isEmpty()){
+            etLabelEdit.setText("Default label");
         }
     }
 
     private boolean validateContacts() {
-        if(contactList.isEmpty()){
+        if(contactListEdit.isEmpty()){
             Toast.makeText(this, "Please add at least one contact to send message to.", Toast.LENGTH_SHORT).show();
             return false;
-        }else if(contactList.size() ==3){
-            if(contactList.get(0)==null && contactList.get(1)==null && contactList.get(2)==null){
+        }else if(contactListEdit.size() ==3){
+            if(contactListEdit.get(0)==null && contactListEdit.get(1)==null && contactListEdit.get(2)==null){
                 Toast.makeText(this, "Please add at least one contact to send message to.", Toast.LENGTH_SHORT).show();
                 return false;
             }else{
                 return true;
             }
 
-        }else if(contactList.size()==2){
-            if(contactList.get(0)==null && contactList.get(1)==null){
+        }else if(contactListEdit.size()==2){
+            if(contactListEdit.get(0)==null && contactListEdit.get(1)==null){
                 Toast.makeText(this, "Please add at least one contact to send message to.", Toast.LENGTH_SHORT).show();
                 return false;
             }else{
                 return true;
             }
-        }else if(contactList.size()==1){
-            if(contactList.get(0)==null){
+        }else if(contactListEdit.size()==1){
+            if(contactListEdit.get(0)==null){
                 Toast.makeText(this, "Please add at least one contact to send message to.", Toast.LENGTH_SHORT).show();
                 return false;
             }else{
                 return true;
             }
-        }
-        else{
+        }else{
             return true;
         }
 
@@ -352,7 +407,7 @@ public class AddNewTimer extends AppCompatActivity {
     }
 
     private boolean validateMessage() {
-        if(String.valueOf(etMessage.getText()).isEmpty()){
+        if(String.valueOf(etMessageEdit.getText()).isEmpty()){
             Toast.makeText(this, "Message can not be empty.", Toast.LENGTH_LONG).show();
             return false;
         }else{
@@ -361,7 +416,7 @@ public class AddNewTimer extends AppCompatActivity {
     }
 
     private boolean validateMinutes() {
-        if(String.valueOf(etMinutes.getText()) == "0" || String.valueOf(etMinutes.getText()).isEmpty()){
+        if(String.valueOf(etMinutesEdit.getText()) == "0" || String.valueOf(etMinutesEdit.getText()).isEmpty()){
             Toast.makeText(this, "Enter Minutes of Timer", Toast.LENGTH_LONG).show();
             return false;
         }else{
@@ -371,27 +426,20 @@ public class AddNewTimer extends AppCompatActivity {
 
     private void addContact() {
         if(validateEmail()==true && validateNickname()==true && validateNumber()==true){
-//            Toast.makeText(this, "Contact Added.", Toast.LENGTH_LONG).show();
-            contactNum = Long.parseLong(String.valueOf(etContactNumber.getText()));
-            Toast.makeText(this, String.valueOf(contactNum), Toast.LENGTH_SHORT).show();
-//            try{
-//
-//            }catch (Exception e){
-//                Toast.makeText(this, " ", Toast.LENGTH_SHORT).show();
-//            }
-            
-            Contact contact = new Contact(etContactNickname.getText().toString(),
-                    contactNum, etContactEmail.getText().toString());
-            if(contactList.size() == 0){
-                contactList.add(contact);
-                tvContact.setText(contactList.get(0).contactNickname);
+            Toast.makeText(this, "Contact Added.", Toast.LENGTH_LONG).show();
 
-            }else if(contactList.size() == 1){
-                contactList.add(contact);
-                tvContact2.setText(contactList.get(1).contactNickname);
-            }else if(contactList.size() == 2){
-                contactList.add(2, contact);
-                tvContact3.setText(contactList.get(2).contactNickname);
+            Contact contact = new Contact(etContactNicknameEdit.getText().toString(),
+                    contactNum, etContactEmailEdit.getText().toString());
+            if(contactListEdit.size()==0){
+                contactListEdit.add(0, contact);
+                tvContactEdit.setText(contactListEdit.get(0).contactNickname);
+
+            }else if(contactListEdit.size()==1){
+                contactListEdit.add(1, contact);
+                tvContact2Edit.setText(contactListEdit.get(1).contactNickname);
+            }else if(contactListEdit.size()==2){
+                contactListEdit.add(2, contact);
+                tvContact3Edit.setText(contactListEdit.get(2).contactNickname);
             }else{
                 Toast.makeText(this, "You can add only 3 contacts. Delete one to add more.", Toast.LENGTH_SHORT).show();
             }
@@ -412,9 +460,14 @@ public class AddNewTimer extends AppCompatActivity {
     }
 
     private boolean validateNumber() {
-        String phone = etContactNumber.getText().toString();
+        String phone = etContactNumberEdit.getText().toString();
 
         if (phone.length() == 10) {
+            try{
+                contactNum = Long.parseLong(etContactNumberEdit.getText().toString());
+            }catch (Exception e){
+                Toast.makeText(this, "Some error occurred during number entry", Toast.LENGTH_SHORT).show();
+            }
             return true;
         }else{
             return false;
@@ -422,7 +475,7 @@ public class AddNewTimer extends AppCompatActivity {
     }
 
     private boolean validateNickname() {
-        String nickname = etContactNickname.getText().toString().trim();
+        String nickname = etContactNicknameEdit.getText().toString().trim();
 
         if(nickname.matches("^[A-Za-z]+$")){
             return true;
@@ -432,7 +485,7 @@ public class AddNewTimer extends AppCompatActivity {
     }
 
     private boolean validateEmail() {
-        String email = etContactEmail.getText().toString().trim();
+        String email = etContactEmailEdit.getText().toString().trim();
 
         String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
 
@@ -481,7 +534,7 @@ public class AddNewTimer extends AppCompatActivity {
                         "gunveer.codes.android.womensafety",
                         photoFile);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-
+                Toast.makeText(this, " "+ photoURI, Toast.LENGTH_LONG).show();
                 startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
             }
         }
@@ -495,7 +548,7 @@ public class AddNewTimer extends AppCompatActivity {
         intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         intent.setAction(Intent.ACTION_OPEN_DOCUMENT).setFlags(intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-                                                                | intent.FLAG_GRANT_READ_URI_PERMISSION | intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                | intent.FLAG_GRANT_READ_URI_PERMISSION | intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         startActivityForResult(Intent.createChooser(intent,"Select Picture"), PICK_IMAGE_MULTIPLE_GALLERY);
     }
 
@@ -513,16 +566,16 @@ public class AddNewTimer extends AppCompatActivity {
                         for(int i=0; i<3;i++){
                             imageUri.add(i, data.getClipData().getItemAt(i).getUri());
                         }
-                        imageView.setImageURI(imageUri.get(0));
-                        imageView2.setImageURI(imageUri.get(1));
-                        imageView3.setImageURI(imageUri.get(2));
+                        imageViewEdit.setImageURI(imageUri.get(0));
+                        imageView2Edit.setImageURI(imageUri.get(1));
+                        imageView3Edit.setImageURI(imageUri.get(2));
                     }else if(data.getClipData().getItemCount() == 2 && imageUri.size() == 1){
 
                         imageUri.add(1, data.getClipData().getItemAt(0).getUri());
                         imageUri.add(2, data.getClipData().getItemAt(1).getUri());
 
-                        imageView2.setImageURI(imageUri.get(1));
-                        imageView3.setImageURI(imageUri.get(2));
+                        imageView2Edit.setImageURI(imageUri.get(1));
+                        imageView3Edit.setImageURI(imageUri.get(2));
                     }else{
                         Toast.makeText(this, "You have selected more images than you can add. Delete some to add more.", Toast.LENGTH_LONG).show();
                     }
@@ -532,13 +585,13 @@ public class AddNewTimer extends AppCompatActivity {
 
                     if (imageUri.size()==0) {
                         imageUri.add(0, data.getData());
-                        imageView.setImageURI(imageUri.get(0));
+                        imageViewEdit.setImageURI(imageUri.get(0));
                     }else if (imageUri.size()==1) {
                         imageUri.add(1, data.getData());
-                        imageView2.setImageURI(imageUri.get(1));
+                        imageView2Edit.setImageURI(imageUri.get(1));
                     }else if (imageUri.size()==2) {
                         imageUri.add(2, data.getData());
-                        imageView3.setImageURI(imageUri.get(2));
+                        imageView3Edit.setImageURI(imageUri.get(2));
                     }else{
                         Toast.makeText(this, "You already added 3 images. Delete one to add more.", Toast.LENGTH_SHORT).show();
                     }
@@ -551,13 +604,13 @@ public class AddNewTimer extends AppCompatActivity {
                 File f = new File(currentPhotoPath);
                 if(imageUri.size()==0){
                     imageUri.add(0, Uri.fromFile(f));
-                    imageView.setImageURI(imageUri.get(0));
+                    imageViewEdit.setImageURI(imageUri.get(0));
                 }else if(imageUri.size()==1){
                     imageUri.add(1, Uri.fromFile(f));
-                    imageView2.setImageURI(imageUri.get(1));
+                    imageView2Edit.setImageURI(imageUri.get(1));
                 }else if(imageUri.size()==2){
                     imageUri.add(2, Uri.fromFile(f));
-                    imageView3.setImageURI(imageUri.get(2));
+                    imageView3Edit.setImageURI(imageUri.get(2));
                 }else{
                     Toast.makeText(this, "You already added 3 images. Delete one to add more.", Toast.LENGTH_SHORT).show();
                 }
@@ -572,6 +625,5 @@ public class AddNewTimer extends AppCompatActivity {
             }
         }
     }
-
 
 }

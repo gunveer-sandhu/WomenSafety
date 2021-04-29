@@ -1,6 +1,7 @@
-package gunveer.codes.womensafety;
+package gunveer.codes.staysafe;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -8,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
-import android.accessibilityservice.AccessibilityService;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,33 +20,43 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.util.Utils;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.gmail.GmailScopes;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
+// client id 796819371137-qojud44cohoknvcdkm3kvoadmsblot0d.apps.googleusercontent.com
     private static final String TAG = "onCreate...";
     private static final int PERMISSION_ID = 44;
+    private static final int ACCOUNT_PICKER_CODE = 45;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
+    GoogleAccountCredential credential;
 
     public static List<Timer> listOfTimers;
+    private static final String[] SCOPES = {
+            GmailScopes.GMAIL_LABELS,
+            GmailScopes.GMAIL_COMPOSE,
+            GmailScopes.GMAIL_INSERT,
+            GmailScopes.GMAIL_MODIFY,
+            GmailScopes.GMAIL_READONLY,
+            GmailScopes.MAIL_GOOGLE_COM,
+            GmailScopes.GMAIL_SEND
+    };
+    
 
     FloatingActionButton btnAddNew;
 
@@ -56,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recView);
         btnAddNew = findViewById(R.id.btnAddNew);
+        credential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(), Arrays.asList(SCOPES))
+                .setBackOff(new ExponentialBackOff());
 
         try {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
@@ -78,19 +92,17 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         adapter = new RecViewAdapter(MainActivity.this, listOfTimers);
         recyclerView.setAdapter(adapter);
-        if (!checkPermissions()) {
-            requestPermissions();
-        }
-        if(!checkSmsPermission()){
-            requestSmsPermission();
-        }
+        permissionSaga();
+
+        
+
 
 
         btnAddNew.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                sendWhatsapp();
-                if(verifyAllOff()){
+
+                if(verifyAllOff() && permissionSaga()){
                     Intent intent = new Intent(MainActivity.this, AddNewTimer.class);
                     startActivity(intent);
                 }else{
@@ -101,9 +113,62 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private boolean permissionSaga() {
+        if (!checkPermissions()) {
+            requestPermissions();
+        }
+        if(!checkSmsPermission()){
+            requestSmsPermission();
+        }
+        if(credential.getSelectedAccountName()==null){
+            requestGmailPermissions();
+        }
+            return true;
+
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ACCOUNT_PICKER_CODE) {
+            if(resultCode==RESULT_OK && data!=null && data.getExtras()!=null){
+                String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                if(accountName!=null){
+                    SharedPreferences accounts = getSharedPreferences("accountNamePref", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = accounts.edit();
+                    editor.putString("accountName", accountName);
+                    editor.apply();
+                    credential.setSelectedAccountName(accountName);
+                }
+            }
+        }
+    }
+
+    private void requestGmailPermissions() {
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.GET_ACCOUNTS},
+                    PERMISSION_ID);
+        }
+        String accountName = getSharedPreferences("accountNamePref", Context.MODE_PRIVATE).getString("accountName", null);
+        if(accountName==null){
+            credential = GoogleAccountCredential.usingOAuth2(
+                    getApplicationContext(), Arrays.asList(SCOPES))
+                    .setBackOff(new ExponentialBackOff());
+            startActivityForResult(credential.newChooseAccountIntent(),
+                    ACCOUNT_PICKER_CODE);
+        }else if(accountName!=null){
+            credential.setSelectedAccountName(accountName);
+        }
+//        permissionSaga();
+
+    }
+
     private void requestSmsPermission() {
         ActivityCompat.requestPermissions(this, new String[]{
                 Manifest.permission.SEND_SMS}, PERMISSION_ID);
+//        permissionSaga();
     }
 
 
@@ -126,11 +191,15 @@ public class MainActivity extends AppCompatActivity {
 //        requestPermissionBackground();
     }
     private void requestPermissions() {
-        ActivityCompat.requestPermissions(this, new String[]{
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.SEND_SMS}, PERMISSION_ID);
-        requestPermissionBackground();
+        if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q){
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION}, PERMISSION_ID);
+        }else{
+            requestPermissionBackground();
+        }
+//        permissionSaga();
     }
     private void requestPermissionBackground(){
         Log.d(TAG, "requestPermissionBackground: here");
@@ -163,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
         }else{
             Log.d(TAG, "requestPermissions: returns false");
         }
+
     }
 
 //    @Override
@@ -172,18 +242,17 @@ public class MainActivity extends AppCompatActivity {
 //
 //        if (requestCode == PERMISSION_ID) {
 //            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-////                getLastLocation();
+//                requestGmailPermissions();
 //            }
 //        }
 //    }
     private boolean checkPermissions(){
         if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q){
             return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    ;
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
         }else{
-            boolean a = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
-            return a;
+            return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
         }
     }
     private boolean checkSmsPermission(){

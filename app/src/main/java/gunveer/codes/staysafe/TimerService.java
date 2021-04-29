@@ -1,7 +1,6 @@
-package gunveer.codes.womensafety;
+package gunveer.codes.staysafe;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -10,12 +9,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -41,11 +38,9 @@ import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 
-import static android.provider.ContactsContract.Intents.Insert.ACTION;
-import static gunveer.codes.womensafety.App.CHANNEL_ID;
-import static gunveer.codes.womensafety.MainActivity.listOfTimers;
-
-import static gunveer.codes.womensafety.RecViewAdapter.mainHandler;
+import static gunveer.codes.staysafe.App.CHANNEL_ID;
+import static gunveer.codes.staysafe.MainActivity.listOfTimers;
+import static gunveer.codes.staysafe.RecViewAdapter.mainHandler;
 
 public class TimerService extends Service {
     public volatile boolean stopThread = false;
@@ -223,7 +218,7 @@ public class TimerService extends Service {
                         //code without location
                     }
                     sendSms();
-                    stopSelf();
+//                    stopSelf();
                 }
 
                 private void sendSms() {
@@ -242,6 +237,12 @@ public class TimerService extends Service {
 //                                Toast.makeText(context, String.valueOf(parts.size()), Toast.LENGTH_LONG).show();
 //                            }
 //                        }, 1000);
+//                        mainHandler.post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                Toast.makeText(context, "Before here", Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
 
                         if(parts.size()==1){
                             Intent sendIntent = new Intent(Intent.ACTION_SENDTO);
@@ -251,27 +252,24 @@ public class TimerService extends Service {
                             sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             sendIntent.putExtra("sms_body", parts.get(0));
                             startActivity(sendIntent);
+                            mainHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(context, "In here", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }else{
-
-                            smsManager.sendMultipartTextMessage(String.valueOf(listOfTimers.get(position).getContactsToAlert().get(i).contactNumber), null, parts, null, null);
-//                            for(int j =0; j<parts.size(); j++){
-//                                Intent sendIntent = new Intent(Intent.ACTION_SENDTO);
-//                                sendIntent.setType("text/plain");
-//                                sendIntent.setData(Uri.parse("smsto:"));
-//                                sendIntent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-//                                sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                                sendIntent.putExtra("sms_body", parts.get(j));
-//                                startActivity(sendIntent);
-//                            }
-//                            Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-//                            sendIntent.setType("text/plain");
-//                            sendIntent.setData(Uri.parse("smsto:"));
-//                            sendIntent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-//                            sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                            sendIntent.putExtra("sms_body", parts);
-//                            startActivity(sendIntent);
+                            mainHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(context, "After here", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            smsManager.sendMultipartTextMessage(String.valueOf(listOfTimers.get(position).getContactsToAlert().get(i).contactNumber), 
+                                    null, parts, null, null);
                         }
                     }
+
                 }
 
                 private void getLocation() {

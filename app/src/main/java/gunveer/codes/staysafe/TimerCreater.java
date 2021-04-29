@@ -1,23 +1,18 @@
-package gunveer.codes.womensafety;
+package gunveer.codes.staysafe;
 
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.widget.EditText;
-import android.widget.Toast;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 
-import static gunveer.codes.womensafety.MainActivity.listOfTimers;
+import static gunveer.codes.staysafe.MainActivity.listOfTimers;
 
 
 public class TimerCreater {
