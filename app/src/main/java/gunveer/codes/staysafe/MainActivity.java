@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.accounts.AccountManager;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,6 +25,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.util.Utils;
@@ -42,9 +45,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "onCreate...";
     private static final int PERMISSION_ID = 44;
     private static final int ACCOUNT_PICKER_CODE = 45;
+    private static final int REQUEST_GOOGLE_PLAY_SERVICES = 46;
+    public String fileName = "";
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
-    GoogleAccountCredential credential;
+    public static GoogleAccountCredential credential;
+
 
     public static List<Timer> listOfTimers;
     private static final String[] SCOPES = {
@@ -122,9 +128,36 @@ public class MainActivity extends AppCompatActivity {
         }
         if(credential.getSelectedAccountName()==null){
             requestGmailPermissions();
+        }if(!isGooglePlayServicesAvailable()){
+            acquireGooglePlayServices();
         }
             return true;
 
+    }
+    // Method for Checking Google Play Service is Available
+    private boolean isGooglePlayServicesAvailable() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        return connectionStatusCode == ConnectionResult.SUCCESS;
+    }
+
+    // Method to Show Info, If Google Play Service is Not Available.
+    private void acquireGooglePlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (apiAvailability.isUserResolvableError(connectionStatusCode)) {
+            showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
+        }
+    }
+
+    // Method for Google Play Services Error Info
+    void showGooglePlayServicesAvailabilityErrorDialog(final int connectionStatusCode) {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        Dialog dialog = apiAvailability.getErrorDialog(
+                MainActivity.this,
+                connectionStatusCode,
+                REQUEST_GOOGLE_PLAY_SERVICES);
+        dialog.show();
     }
 
 
@@ -141,6 +174,13 @@ public class MainActivity extends AppCompatActivity {
                     editor.apply();
                     credential.setSelectedAccountName(accountName);
                 }
+            }
+        }if(requestCode==REQUEST_GOOGLE_PLAY_SERVICES){
+            if(resultCode!=RESULT_OK){
+                Toast.makeText(this, "Google Play services required." +
+                        " Please enable Google Play Services and relaunch the app.", Toast.LENGTH_LONG).show();
+            }else{
+
             }
         }
     }

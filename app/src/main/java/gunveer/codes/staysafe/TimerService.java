@@ -39,6 +39,7 @@ import com.google.android.gms.tasks.Task;
 import java.util.ArrayList;
 
 import static gunveer.codes.staysafe.App.CHANNEL_ID;
+import static gunveer.codes.staysafe.MainActivity.credential;
 import static gunveer.codes.staysafe.MainActivity.listOfTimers;
 import static gunveer.codes.staysafe.RecViewAdapter.mainHandler;
 
@@ -217,8 +218,18 @@ public class TimerService extends Service {
                         locationLink = "Sorry, the location was not attached.";
                         //code without location
                     }
-                    sendSms();
-//                    stopSelf();
+                    Log.d(TAG, "codeExpires: "+listOfTimers.get(position).getLastClickedPhoto().get(0));
+//                    sendSms();
+                    sendEmail();
+                }
+
+                private void sendEmail() {
+                    Log.d(TAG, "sendEmail: 1");
+                    for(int i = 0; i<listOfTimers.get(position).getContactsToAlert().size(); i++){
+                        Log.d(TAG, "sendEmail: ");
+                        new MakeRequestTask(credential, position, i, locationLink).execute();
+                    }
+
                 }
 
                 private void sendSms() {
@@ -252,21 +263,10 @@ public class TimerService extends Service {
                             sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             sendIntent.putExtra("sms_body", parts.get(0));
                             startActivity(sendIntent);
-                            mainHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(context, "In here", Toast.LENGTH_SHORT).show();
-                                }
-                            });
                         }else{
-                            mainHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(context, "After here", Toast.LENGTH_SHORT).show();
-                                }
-                            });
+
                             smsManager.sendMultipartTextMessage(String.valueOf(listOfTimers.get(position).getContactsToAlert().get(i).contactNumber), 
-                                    null, parts, null, null);
+                                    null , parts, null, null);
                         }
                     }
 
