@@ -1,16 +1,19 @@
 package gunveer.codes.womensafety;
 
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +27,27 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+import static android.content.ContentValues.TAG;
+import static gunveer.codes.womensafety.MainActivity.listOfTimers;
+import static gunveer.codes.womensafety.MainActivity.scrollView;
+import static gunveer.codes.womensafety.MainActivity.tvHowTo;
 
 
 public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHolder>{
@@ -132,9 +155,7 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
                 @Override
                 public void onClick(View v) {
                     if(verifyAllOff()){
-                        listOfTimers.remove(getAdapterPosition());
-                        notifyDataSetChanged();
-                        TimerCreater.saving(listOfTimers, context);
+                        new AsyncDeleter(getAdapterPosition()).execute();
                     }else{
                         Toast.makeText(context, "Switch off the timers to delete them.", Toast.LENGTH_LONG).show();
                     }
@@ -286,6 +307,120 @@ public class RecViewAdapter extends RecyclerView.Adapter<RecViewAdapter.MyViewHo
                 }
             }
             return false;
+        }
+        private class AsyncDeleter extends AsyncTask<Integer, Void, Void>{
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+            AlertDialog alertDialog;
+            public AlertDialog.Builder getAlertBuilder() {
+                alertBuilder.setView(R.layout.timer_delete_layout)
+                        .setCancelable(false);
+                return alertBuilder;
+            }
+
+            Response response = null;
+            int position;
+
+            @Override
+            protected void onPreExecute() {
+                alertDialog = getAlertBuilder().create();
+                alertDialog.show();
+                super.onPreExecute();
+            }
+
+            public AsyncDeleter(int position) {
+                this.position = position;
+            }
+
+            @Override
+            protected void onPostExecute(Void unused) {
+                alertDialog.dismiss();
+                super.onPostExecute(unused);
+            }
+
+            @Override
+            protected Void doInBackground(Integer... integers) {
+                List<String> imageUrls = new ArrayList<>();
+                Map<String, String> imageUriString = listOfTimers.get(position).getLastClickedPhoto();
+                Set links = imageUriString.keySet();
+                Iterator iterator = links.iterator();
+
+                while(iterator.hasNext()){
+
+                    imageUrls.add(iterator.next().toString());
+                }
+                for(int i =0; i<imageUrls.size(); i++){
+                    OkHttpClient client = new OkHttpClient().newBuilder()
+                            .build();
+                    MediaType mediaType = MediaType.parse("text/plain");
+                    MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+                    RequestBody body = RequestBody.create(JSON, "{}");
+                    Request request = new Request.Builder()
+                            .url("https://api.imgur.com/3/image/"+imageUriString.get(imageUrls.get(i)))
+                            .method("DELETE", body)
+                            .addHeader("Authorization", "Client-ID 89bf146742231d7")
+                            .build();
+
+                    try {
+                        response = client.newCall(request).execute();
+                        String responser = response.body().string();
+                        JSONObject object = new JSONObject(responser);
+                        String status = object.getString("status");
+                        if(status.contains("200")){
+
+                        }else{
+                            mainHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(context, "SOS cannot be deleted. Check your internet connection.", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    } catch (IOException | JSONException e) {
+                        Log.d(TAG, "imgurUpload: catching error " + e);
+                        e.printStackTrace();
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(context, "SOS may not be deleted. Please try again." +
+                                        " Check your internet connection.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+
+                if(response!=null){
+                    response.body().close();
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listOfTimers.remove(getAdapterPosition());
+                            notifyDataSetChanged();
+                            TimerCreater.saving(listOfTimers, context);
+                            if(listOfTimers.size()==0){
+                                tvHowTo.setText("This app sends an SOS when the timer expires, even without an internet connection." +
+                                        "\n" +
+                                        "The timer would reset everytime you click reset button. But in case something bad happens, it'll trigger an SMS " +
+                                        "and only then will send the alert." +
+                                        "\n" +
+                                        "You can attach up to 3 images, messages and choose to attach location(of when timer expires) with the SOS." +
+                                        "\n" +
+                                        "You can even set the SOS to be sent after missing multiple timers." +
+                                        "\n" +
+                                        "This requires no previous set up at the receiver's phone. And they cannot track you. Location will only be sent once if you want." +
+                                        "\n" +
+                                        "This app is a serverless app. All your data is on your phone safe and sound." +
+                                        "\n" +
+                                        "So get started add a timer by clicking on the '+'(plus) icon.");
+                                tvHowTo.setVisibility(View.VISIBLE);
+                                scrollView.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    });
+
+                }
+
+                return null;
+            }
         }
     }
 

@@ -27,6 +27,8 @@ import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -44,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_ID = 44;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
+    public static TextView tvHowTo;
+    public static ScrollView scrollView;
 
     public static List<Timer> listOfTimers;
 
@@ -56,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recView);
         btnAddNew = findViewById(R.id.btnAddNew);
+        tvHowTo = findViewById(R.id.tvHowTo);
+        scrollView = findViewById(R.id.scrollView);
 
         try {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
@@ -68,9 +74,30 @@ public class MainActivity extends AppCompatActivity {
 //                Toast.makeText(this, "Creating a new list", Toast.LENGTH_LONG).show();
             }
         }catch (Exception e){
-            Toast.makeText(this, "Error at try catch on create", Toast.LENGTH_LONG).show();
+//            Toast.makeText(this, "Error at try catch on create", Toast.LENGTH_LONG).show();
             Log.d(TAG, "onCreate: " + e);
             listOfTimers = new ArrayList<>();
+        }
+
+        if(listOfTimers.size()==0){
+            tvHowTo.setText("This app sends an SOS when the timer expires, even without an internet connection." +
+                    "\n" +
+                    "The timer would reset everytime you click reset button. But in case something bad happens, it'll trigger an SMS " +
+                    "and only then will send the alert." +
+                    "\n" +
+                    "You can attach up to 3 images, messages and choose to attach location(of when timer expires) with the SOS." +
+                    "\n" +
+                    "You can even set the SOS to be sent after missing multiple timers." +
+                    "\n" +
+                    "This requires no previous set up at the receiver's phone. And they cannot track you. Location will only be sent once if you want." +
+                    "\n" +
+                    "This app is a serverless app. All your data is on your phone safe and sound." +
+                    "\n" +
+                    "So get started add a timer by clicking on the '+'(plus) icon.");
+            tvHowTo.setVisibility(View.VISIBLE);
+        }else{
+            tvHowTo.setVisibility(View.GONE);
+            scrollView.setVisibility(View.GONE);
         }
 
 
@@ -128,13 +155,14 @@ public class MainActivity extends AppCompatActivity {
     private void requestPermissions() {
         ActivityCompat.requestPermissions(this, new String[]{
                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                Manifest.permission.INTERNET,
         Manifest.permission.SEND_SMS}, PERMISSION_ID);
         requestPermissionBackground();
     }
     private void requestPermissionBackground(){
         Log.d(TAG, "requestPermissionBackground: here");
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || true){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             Log.d(TAG, "requestPermissions: " + shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION));
             if(shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION) || true){
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);

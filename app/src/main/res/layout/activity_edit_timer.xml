@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddNewTimer">
+    tools:context=".EditTimer">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -48,7 +48,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="8dp"
-                android:text="Timer Expiry: "
+                android:text="SOS  Expiry: "
                 android:textSize="18sp"
                 app:layout_constraintEnd_toStartOf="@+id/guideline4"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -201,13 +201,13 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:text="Add Contact"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="@+id/guideline4"
-                app:layout_constraintTop_toBottomOf="@+id/tvContact3Edit" />
+                app:layout_constraintTop_toBottomOf="@+id/etContactNumberEdit" />
 
             <EditText
                 android:id="@+id/etContactNumberEdit"
@@ -223,20 +223,6 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="@+id/guideline4"
                 app:layout_constraintTop_toBottomOf="@+id/etContactNicknameEdit" />
-
-            <EditText
-                android:id="@+id/etContactEmailEdit"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"
-                android:ems="10"
-                android:hint="Contact Email"
-                android:inputType="textEmailAddress"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guideline4"
-                app:layout_constraintTop_toBottomOf="@+id/etContactNumberEdit" />
 
             <EditText
                 android:id="@+id/etContactNicknameEdit"
@@ -322,7 +308,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="32dp"
                 android:text="Exclude Location in Alert"
                 android:textSize="18sp"
@@ -337,11 +323,11 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
-                android:text="Timers missed before sending alert."
+                android:text="Timers missed before sending SOS."
                 android:textSize="18sp"
                 app:layout_constraintEnd_toStartOf="@+id/guideline4"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnAddContactEdit" />
+                app:layout_constraintTop_toBottomOf="@+id/textView18" />
 
             <TextView
                 android:id="@+id/textView10"
@@ -350,7 +336,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="8dp"
-                android:text="Timer Label: "
+                android:text="SOS Label: "
                 android:textAlignment="textStart"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toStartOf="@+id/guideline4"
@@ -393,9 +379,9 @@
                 android:layout_marginEnd="8dp"
                 android:text="Tap on a contact to delete."
                 android:textAlignment="center"
-                app:layout_constraintEnd_toStartOf="@+id/guideline4"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvContact3Edit" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline4"
+                app:layout_constraintTop_toBottomOf="@+id/btnAddContactEdit" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

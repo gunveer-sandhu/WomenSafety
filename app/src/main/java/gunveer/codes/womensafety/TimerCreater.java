@@ -15,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 import static gunveer.codes.womensafety.MainActivity.listOfTimers;
@@ -29,14 +30,14 @@ public class TimerCreater {
     public String label;
     public String message;
     public int minutesToExpiry;
-    public List<String> imageUri;
+    public Map<String, String> imageUri;
     public List<Contact> contactList;
     public int missedTimer;
     public boolean excludeLocation;
 
 
 
-    public TimerCreater(String label, int minutesToExpiry, String message, List<String> imageUri, List<Contact> contactList, int missedTimer, boolean excludeLocation, Context context) {
+    public TimerCreater(String label, int minutesToExpiry, String message, Map<String, String> imageUri, List<Contact> contactList, int missedTimer, boolean excludeLocation, Context context) {
         this.label = label;
         this.minutesToExpiry = minutesToExpiry;
         this.message = message;
@@ -50,7 +51,7 @@ public class TimerCreater {
     }
 
 
-    private Timer initTimer(String label, int minutesToExpiry, String message, List<String> imageUri, List<Contact> contactList,
+    private Timer initTimer(String label, int minutesToExpiry, String message, Map<String, String> imageUri, List<Contact> contactList,
                             int missedTimer, boolean excludeLocation) {
         timer1.hour=0;
         timer1.label = label;

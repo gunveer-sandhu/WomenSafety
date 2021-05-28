@@ -6,17 +6,18 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 
 import java.util.List;
+import java.util.Map;
 
 public class Timer {
     int hour, minutes, missedTimer;
     boolean toggleOn, excludeLocation;
-    List<String> lastClickedPhoto;
+    Map<String, String> lastClickedPhoto;
     String message, label;
     List<Contact> contactsToAlert;
     Location lastLocation;
 
 
-    public Timer(int hour, String label, int minutes, int missedTimer, boolean toggleOn, List<String> lastClickedPhoto, String message, List<Contact> contactsToAlert,
+    public Timer(int hour, String label, int minutes, int missedTimer, boolean toggleOn, Map<String, String> lastClickedPhoto, String message, List<Contact> contactsToAlert,
                  Location lastLocation, boolean excludeLocation) {
         this.hour = hour;
         this.label = label;
@@ -84,11 +85,11 @@ public class Timer {
         this.toggleOn = toggleOn;
     }
 
-    public List<String> getLastClickedPhoto() {
+    public Map<String, String> getLastClickedPhoto() {
         return lastClickedPhoto;
     }
 
-    public void setLastClickedPhoto(List<String> lastClickedPhoto) {
+    public void setLastClickedPhoto(Map<String, String> lastClickedPhoto) {
         this.lastClickedPhoto = lastClickedPhoto;
     }
 

@@ -2,14 +2,12 @@ package gunveer.codes.womensafety;
 
 public class Contact {
     Long contactNumber;
-    String contactEmail;
     String contactNickname;
 
-    public Contact(String contactNickname, Long contactNumber, String contactEmail) {
+    public Contact(String contactNickname, Long contactNumber) {
 
         this.contactNickname = contactNickname;
         this.contactNumber = contactNumber;
-        this.contactEmail = contactEmail;
 
     }
 
@@ -21,13 +19,6 @@ public class Contact {
         this.contactNumber = contactNumber;
     }
 
-    public String getContactEmail() {
-        return contactEmail;
-    }
-
-    public void setContactEmail(String contactEmail) {
-        this.contactEmail = contactEmail;
-    }
 
     public String getContactNickname() {
         return contactNickname;

@@ -40,6 +40,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static android.provider.ContactsContract.Intents.Insert.ACTION;
 import static gunveer.codes.womensafety.App.CHANNEL_ID;
@@ -154,7 +158,7 @@ public class TimerService extends Service {
 //                                Log.d(TAG, "in reset thread here");
                             }
 
-                            totalTime[0] = totalTime[0] - 10000;
+                            totalTime[0] = totalTime[0] - 1000;
                             minutes[0] = totalTime[0] / 60000;
                             seconds[0] = (totalTime[0] % 60000) / 1000;
 
@@ -178,7 +182,7 @@ public class TimerService extends Service {
                                     resetTimer();
                                     return;
                                 } else {
-                                    getLocation();
+//                                    getLocation();
                                     totalTime[0] = totalTimeRes;
                                 }
                             } else {
@@ -217,31 +221,56 @@ public class TimerService extends Service {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        locationLink = locationLink + String.valueOf(listOfTimers.get(position).getLastLocation().getLatitude()) + "," + String.valueOf(listOfTimers.get(position).getLastLocation().getLongitude());
+                        if(locationLink=="https://www.google.com/maps/search/?api=1&query="){
+                            locationLink = locationLink + String.valueOf(listOfTimers.get(position).getLastLocation().getLatitude()) + "," + String.valueOf(listOfTimers.get(position).getLastLocation().getLongitude());
+                        }
                     } else {
                         locationLink = "Sorry, the location was not attached.";
                         //code without location
                     }
                     sendSms();
-                    stopSelf();
                 }
 
                 private void sendSms() {
+                    String image1 = "" , image2 = "" , image3 = "";
+                    Map<String, String> imageUriString =  listOfTimers.get(position).getLastClickedPhoto();
+                    List<String> imageUrls = new ArrayList<>();
+                    Set links = imageUriString.keySet();
+                    Iterator iterator = links.iterator();
+
+                    while(iterator.hasNext()){
+                        imageUrls.add(iterator.next().toString());
+                    }
+                    if(imageUrls.size()==3){
+                        image1 = imageUrls.get(0);
+                        image2 = imageUrls.get(1);
+                        image3 = imageUrls.get(2);
+                    }else if(imageUrls.size()==2){
+                        image1 = imageUrls.get(0);
+                        image2 = imageUrls.get(1);
+                    }else if(imageUrls.size()==1){
+                        image1 = imageUrls.get(0);
+                    }
                     for(int i = 0; i<listOfTimers.get(position).getContactsToAlert().size(); i++){
                         String message = "SOS Label: " + listOfTimers.get(position).getLabel() + "\n"
                                 + "SOS Message: " + listOfTimers.get(position).getMessage() + "\n"
                                 + "SOS Location: " + locationLink + "\n"
-                                + "Check your email for images attached: " + listOfTimers.get(position).getContactsToAlert().get(i).getContactEmail() + "\n"
+                                + "Images Attached: " + image1 + " " + image2 + " " + image3 + " " + "\n"
                                 + "You should check up on them. Sent by Stay Safe App.";
 
-                        SmsManager smsManager = SmsManager.getDefault();
+                        SmsManager smsManager = null;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            smsManager = SmsManager.getSmsManagerForSubscriptionId(SmsManager.getDefaultSmsSubscriptionId());
+                        }else{
+                            smsManager = SmsManager.getDefault();
+                        }
                         ArrayList<String> parts = smsManager.divideMessage(message);
 //                        mainHandler.postDelayed(new Runnable() {
 //                            @Override
 //                            public void run() {
 //                                Toast.makeText(context, String.valueOf(parts.size()), Toast.LENGTH_LONG).show();
 //                            }
-//                        }, 1000);
+//                        }, 100);
 
                         if(parts.size()==1){
                             Intent sendIntent = new Intent(Intent.ACTION_SENDTO);
@@ -251,27 +280,17 @@ public class TimerService extends Service {
                             sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             sendIntent.putExtra("sms_body", parts.get(0));
                             startActivity(sendIntent);
+                            
                         }else{
 
-                            smsManager.sendMultipartTextMessage(String.valueOf(listOfTimers.get(position).getContactsToAlert().get(i).contactNumber), null, parts, null, null);
-//                            for(int j =0; j<parts.size(); j++){
-//                                Intent sendIntent = new Intent(Intent.ACTION_SENDTO);
-//                                sendIntent.setType("text/plain");
-//                                sendIntent.setData(Uri.parse("smsto:"));
-//                                sendIntent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-//                                sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                                sendIntent.putExtra("sms_body", parts.get(j));
-//                                startActivity(sendIntent);
-//                            }
-//                            Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-//                            sendIntent.setType("text/plain");
-//                            sendIntent.setData(Uri.parse("smsto:"));
-//                            sendIntent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-//                            sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                            sendIntent.putExtra("sms_body", parts);
-//                            startActivity(sendIntent);
+                            try {
+                                smsManager.sendMultipartTextMessage(String.valueOf(listOfTimers.get(position).getContactsToAlert().get(i).getContactNumber()), null, parts, null, null);
+                            } catch (Exception e) {
+                                Log.d(TAG, "sendSms: "+ e);
+                            }
                         }
                     }
+                    stopSelf();
                 }
 
                 private void getLocation() {
@@ -308,11 +327,13 @@ public class TimerService extends Service {
                         } else {
                             //Turn on location
                             Log.d(TAG, "getLocation: Location not enabled");
-                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(intent);
+                            locationLink = "Permissions were not given.";
+//                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//                            startActivity(intent);
                         }
                     } else {
                         Log.d(TAG, "getLocation: Did not got the permissions");
+                        locationLink = "Permissions were not given.";
                         //request for permissions
 //                        requestPermissions();
 
